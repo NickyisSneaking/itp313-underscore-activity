@@ -1,0 +1,36 @@
+{{> head}}
+<body class="bg-slate-50">
+{{> shellstart}}
+
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">🔐 Sign-in security</h1>
+    <p class="mt-1 text-slate-600">The latest 100 sign-in attempts. Several ❌ in a row for one username can mean someone is guessing passwords.</p>
+  </header>
+
+  <section class="mt-5 grid grid-cols-2 gap-4 sm:max-w-md">
+    <div class="card !p-4"><p class="text-xs font-medium text-slate-500">✅ Successful</p><p class="mt-1 text-2xl font-bold text-emerald-700">{{succeeded}}</p></div>
+    <div class="card !p-4"><p class="text-xs font-medium text-slate-500">❌ Failed</p><p class="mt-1 text-2xl font-bold text-red-700">{{failed}}</p></div>
+  </section>
+
+  {{#if attempts.length}}
+  <ul class="mt-5 space-y-3">
+    {{#each attempts}}
+    <li class="card flex flex-wrap items-center justify-between gap-2 !p-4">
+      <div class="min-w-0">
+        <p class="truncate text-base font-bold text-slate-900">{{username}}</p>
+        <p class="text-xs text-slate-500">{{fmtDate attempted_at}} · from {{ip_address}}</p>
+      </div>
+      {{#if ok}}
+      <span class="chip bg-emerald-100 text-emerald-800 ring-emerald-200">✅ Signed in</span>
+      {{else}}
+      <span class="chip bg-red-100 text-red-800 ring-red-200">❌ Failed</span>
+      {{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <div class="mt-5 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">No sign-in attempts recorded yet.</div>
+  {{/if}}
+
+{{> shellend}}
+{{> footer}}

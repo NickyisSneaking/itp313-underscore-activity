@@ -1,0 +1,48 @@
+{{> head}}
+<body class="bg-slate-50">
+{{> shellstart}}
+
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">👤 My profile</h1>
+    <p class="mt-1 text-slate-600">Your sign-in details and password.</p>
+  </header>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    <section class="card" aria-labelledby="who-h">
+      <h2 id="who-h" class="text-lg font-bold text-slate-900">Who you are</h2>
+      <dl class="mt-3 space-y-3 text-sm">
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">Username</dt><dd class="font-semibold text-slate-900">{{currentUser.username}}</dd></div>
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">Role</dt><dd class="font-semibold text-slate-900">{{roleInfo.label}}</dd></div>
+      </dl>
+      <p class="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">{{roleInfo.blurb}}</p>
+    </section>
+
+    <section class="card" aria-labelledby="pw-h">
+      <h2 id="pw-h" class="text-lg font-bold text-slate-900">Change your password</h2>
+      <p class="mt-1 text-sm text-slate-600">Use at least 6 characters. Pick something others can't guess.</p>
+      <form method="post" action="/profile/password" class="mt-4 space-y-4" data-once>
+        <div>
+          <label for="old_pw" class="label">Current password</label>
+          <div class="relative">
+            <input id="old_pw" name="old_password" type="password" class="input pr-20" autocomplete="current-password" required>
+            <button type="button" data-toggle-password="old_pw" class="absolute inset-y-0 right-1 my-1 rounded-lg px-3 text-sm font-semibold text-brand-700 hover:bg-brand-50">Show</button>
+          </div>
+        </div>
+        <div>
+          <label for="new_pw" class="label">New password</label>
+          <div class="relative">
+            <input id="new_pw" name="new_password" type="password" class="input pr-20" minlength="6" autocomplete="new-password" required>
+            <button type="button" data-toggle-password="new_pw" class="absolute inset-y-0 right-1 my-1 rounded-lg px-3 text-sm font-semibold text-brand-700 hover:bg-brand-50">Show</button>
+          </div>
+        </div>
+        <div>
+          <label for="conf_pw" class="label">Type the new password again</label>
+          <input id="conf_pw" name="confirm_password" type="password" class="input" minlength="6" autocomplete="new-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Update password</button>
+      </form>
+    </section>
+  </div>
+
+{{> shellend}}
+{{> footer}}

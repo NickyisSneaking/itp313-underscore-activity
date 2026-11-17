@@ -1,0 +1,27 @@
+{{> head}}
+<body class="bg-slate-50">
+{{> shellstart}}
+
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">Accounts by status</h1>
+    <p class="mt-1 text-slate-600">How many accounts are active, inactive or suspended — and how much money is in each group.</p>
+  </header>
+
+  <section class="mt-5 grid gap-4 md:grid-cols-3">
+    {{#each groups}}
+    <article class="card">
+      <div class="flex items-center justify-between">{{> statuschip status=status}}<span class="text-sm font-semibold text-slate-500">{{share}}% of accounts</span></div>
+      <p class="mt-4 text-3xl font-extrabold text-slate-900">{{accounts}} <span class="text-base font-semibold text-slate-500">{{plural accounts 'account' 'accounts'}}</span></p>
+      <p class="mt-1 text-sm text-slate-600">Holding <strong class="text-slate-900">{{peso balance}}</strong></p>
+      <div class="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-slate-100" role="img" aria-label="{{share}} percent of all accounts">
+        <div class="h-full rounded-full bg-brand-600" style="width: {{share}}%"></div>
+      </div>
+      <a href="/accounts?status={{status}}" class="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">See these accounts →</a>
+    </article>
+    {{/each}}
+  </section>
+
+  <p class="mt-6 text-sm text-slate-600">In total: <strong>{{stats.count}}</strong> {{plural stats.count 'account' 'accounts'}} holding <strong>{{peso stats.total}}</strong>.</p>
+
+{{> shellend}}
+{{> footer}}

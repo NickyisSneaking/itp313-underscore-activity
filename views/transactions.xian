@@ -1,0 +1,57 @@
+{{> head}}
+<body class="bg-slate-50">
+{{> shellstart}}
+
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">Transactions</h1>
+    <p class="mt-1 text-slate-600">Every deposit, withdrawal and transfer, newest first. To record a new one, open an account.</p>
+  </header>
+
+  <!-- Totals -->
+  <section aria-label="Totals" class="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="card !p-4"><p class="text-xs font-medium text-slate-500">⬇ Money in (deposits)</p><p class="mt-1 text-xl font-bold text-emerald-700">{{peso totals.deposits}}</p></div>
+    <div class="card !p-4"><p class="text-xs font-medium text-slate-500">⬆ Withdrawn</p><p class="mt-1 text-xl font-bold text-red-700">{{peso totals.withdrawals}}</p></div>
+    <div class="card !p-4"><p class="text-xs font-medium text-slate-500">↗ Transferred out</p><p class="mt-1 text-xl font-bold text-blue-700">{{peso totals.transfers}}</p></div>
+    <div class="card !p-4"><p class="text-xs font-medium text-slate-500">🧾 Number of transactions</p><p class="mt-1 text-xl font-bold text-slate-900">{{totals.count}}</p></div>
+  </section>
+
+  <form method="get" action="/transactions" class="mt-5 flex flex-wrap items-end gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <div class="min-w-[12rem] flex-1 sm:flex-none">
+      <label for="type" class="label">Show</label>
+      <select id="type" name="type" class="input" data-autosubmit>
+        <option value="" {{selected type ''}}>All types</option>
+        <option value="deposit" {{selected type 'deposit'}}>⬇ Deposits only</option>
+        <option value="withdrawal" {{selected type 'withdrawal'}}>⬆ Withdrawals only</option>
+        <option value="transfer" {{selected type 'transfer'}}>↗ Transfers only</option>
+      </select>
+    </div>
+    <noscript><button type="submit" class="btn btn-primary">Apply</button></noscript>
+    {{#if type}}<a href="/transactions" class="btn btn-ghost">Clear filter</a>{{/if}}
+  </form>
+
+  {{#if transactions.length}}
+  <p class="mt-5 text-sm text-slate-600">Showing the latest {{transactions.length}} {{plural transactions.length 'transaction' 'transactions'}}.</p>
+  <ul class="mt-3 space-y-3">
+    {{#each transactions}}
+    <li class="card flex flex-wrap items-center gap-x-6 gap-y-2 !p-4">
+      <div class="min-w-0 flex-1 basis-48">
+        <a href="/accounts/{{account_id}}" class="block truncate text-base font-bold text-slate-900 hover:underline">{{account.AccountNumber}}</a>
+        <p class="truncate text-sm text-slate-600">{{#if description}}{{description}}{{else}}<span class="text-slate-400">No note</span>{{/if}}</p>
+        <p class="text-xs text-slate-500">{{fmtDate created_at}}</p>
+      </div>
+      <div>{{> typechip type=type}}</div>
+      <p class="min-w-[7rem] text-right text-lg font-bold {{typeAmountClass type}}">{{typeSign type}}{{peso amount}}</p>
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <div class="mt-5 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-10 text-center">
+    <p class="text-4xl" aria-hidden="true">🧾</p>
+    <p class="mt-2 font-semibold text-slate-800">No transactions found.</p>
+    <p class="mt-1 text-sm text-slate-600">{{#if type}}Try a different type.{{else}}Open an account to record the first deposit.{{/if}}</p>
+    <a href="/accounts" class="btn btn-primary mt-4">Go to accounts</a>
+  </div>
+  {{/if}}
+
+{{> shellend}}
+{{> footer}}

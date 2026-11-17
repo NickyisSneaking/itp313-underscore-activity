@@ -1,0 +1,1 @@
+<span class="chip {{typeClass type}}"><span aria-hidden="true">{{typeIcon type}}</span>{{typeLabel type}}</span>

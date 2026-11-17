@@ -1,0 +1,18 @@
+{{> head}}
+<body class="min-h-full bg-slate-50">
+{{#if currentUser}}{{> shellstart}}{{/if}}
+  <div class="mx-auto flex max-w-lg flex-col items-center px-4 py-16 text-center">
+    <p class="text-6xl font-extrabold text-brand-700">{{code}}</p>
+    <h1 class="mt-4 text-2xl font-bold text-slate-900">{{heading}}</h1>
+    <p class="mt-2 text-slate-600">{{message}}</p>
+    <div class="mt-6 flex flex-wrap justify-center gap-3">
+      {{#if currentUser}}
+      <a href="/dashboard" class="btn btn-primary">Go to overview</a>
+      <a href="/accounts" class="btn btn-ghost">See accounts</a>
+      {{else}}
+      <a href="/login" class="btn btn-primary">Go to sign in</a>
+      {{/if}}
+    </div>
+  </div>
+{{#if currentUser}}{{> shellend}}{{/if}}
+{{> footer}}

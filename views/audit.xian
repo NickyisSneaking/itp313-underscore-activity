@@ -1,0 +1,48 @@
+{{> head}}
+<body class="bg-slate-50">
+{{> shellstart}}
+
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">🔍 Activity log</h1>
+    <p class="mt-1 text-slate-600">A record of every sign-in and change made in the system (latest 100). It can't be edited from this website.</p>
+  </header>
+
+  {{#if entries.length}}
+  <ul class="mt-5 space-y-3">
+    {{#each entries}}
+    <li class="card !p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="chip {{cls}}"><span aria-hidden="true">{{icon}}</span>{{label}}</span>
+        <time class="text-xs text-slate-500">{{fmtDate created_at}}</time>
+      </div>
+      <p class="mt-2 text-sm text-slate-800">
+        <strong>{{username}}</strong>{{#if role}} <span class="text-slate-500">({{role}})</span>{{/if}}
+        {{#if table_name}}· {{table_name}}{{#if record_id}} #{{record_id}}{{/if}}{{/if}}
+        <span class="text-slate-400">· from {{ip_address}}</span>
+      </p>
+      {{#if hasDiff}}
+      <details class="mt-2">
+        <summary class="cursor-pointer text-sm font-semibold text-brand-700">Show what changed</summary>
+        <div class="mt-2 overflow-x-auto rounded-xl ring-1 ring-slate-200">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+              <tr><th scope="col" class="px-3 py-2">What</th><th scope="col" class="px-3 py-2">Before</th><th scope="col" class="px-3 py-2">After</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {{#each diff}}
+              <tr><td class="px-3 py-2 font-medium text-slate-700">{{key}}</td><td class="px-3 py-2 text-red-700">{{before}}</td><td class="px-3 py-2 text-emerald-700">{{after}}</td></tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </details>
+      {{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <div class="mt-5 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">Nothing has been recorded yet.</div>
+  {{/if}}
+
+{{> shellend}}
+{{> footer}}

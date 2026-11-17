@@ -1,0 +1,176 @@
+{{> head}}
+<body class="bg-slate-50">
+{{> shellstart}}
+
+  <header class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">Accounts</h1>
+      <p class="mt-1 text-slate-600">Find an account, or open one to see its details and record money in or out.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      {{#if can.create}}<button type="button" class="btn btn-success" data-open-dialog="createDialog">➕ New account</button>{{/if}}
+      {{#if can.audit}}<a class="btn btn-ghost" href="/accounts/export{{#if status}}?status={{status}}{{/if}}">⬇ Download as CSV</a>{{/if}}
+    </div>
+  </header>
+
+  <details class="mt-4 rounded-xl bg-white p-4 text-sm text-slate-700 ring-1 ring-slate-200">
+    <summary class="cursor-pointer font-semibold text-slate-800">How does this page work?</summary>
+    <ul class="mt-2 list-disc space-y-1 pl-5">
+      <li>Type part of an account number in the search box and press <strong>Search</strong>.</li>
+      <li>Use <strong>Show</strong> to see only active, inactive or suspended accounts.</li>
+      <li>Press <strong>Open</strong> on an account to see its history{{#if can.create}}, record a deposit or withdrawal, and save the holder's contact details{{/if}}.</li>
+      <li><strong>Active</strong> = working normally · <strong>Inactive</strong> = not in use · <strong>Suspended</strong> = temporarily blocked.</li>
+    </ul>
+  </details>
+
+  <!-- Search & filter -->
+  <form method="get" action="/accounts" class="mt-5 grid gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+    <div>
+      <label for="keyword" class="label">Find an account</label>
+      <input id="keyword" name="keyword" type="search" value="{{keyword}}" class="input" placeholder="Type part of an account number" maxlength="50">
+    </div>
+    <div>
+      <label for="status" class="label">Show</label>
+      <select id="status" name="status" class="input" data-autosubmit>
+        <option value="" {{selected status ''}}>All statuses</option>
+        <option value="active" {{selected status 'active'}}>✔ Active</option>
+        <option value="inactive" {{selected status 'inactive'}}>⏸ Inactive</option>
+        <option value="suspended" {{selected status 'suspended'}}>⛔ Suspended</option>
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <button type="submit" class="btn btn-primary flex-1 sm:flex-none">🔍 Search</button>
+      {{#if filtered}}<a href="/accounts" class="btn btn-ghost">Clear</a>{{/if}}
+    </div>
+  </form>
+
+  <p class="mt-5 text-sm font-medium text-slate-600" aria-live="polite">
+    {{#if filtered}}Found {{count}} matching {{plural count 'account' 'accounts'}}.{{else}}Showing all {{count}} {{plural count 'account' 'accounts'}}.{{/if}}
+  </p>
+
+  {{#if accounts.length}}
+  <ul class="mt-3 space-y-3">
+    {{#each accounts}}
+    <li class="card flex flex-wrap items-center gap-x-6 gap-y-3 !p-4">
+      <div class="min-w-0 flex-1 basis-44">
+        <a href="/accounts/{{id}}" class="block truncate text-base font-bold text-slate-900 hover:underline">{{AccountNumber}}</a>
+        <p class="text-xs text-slate-500">Opened {{fmtDay created_at}}</p>
+      </div>
+      <div class="min-w-[8rem]">
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Balance</p>
+        <p class="text-lg font-bold text-slate-900">{{peso TotalBalance}}</p>
+      </div>
+      <div>{{> statuschip status=status}}</div>
+      <div class="flex flex-wrap gap-2">
+        <a href="/accounts/{{id}}" class="btn btn-primary !min-h-[40px] !px-3">Open</a>
+        {{#if @root.can.edit}}
+        <button type="button" class="btn btn-ghost !min-h-[40px] !px-3" data-edit-account data-id="{{id}}" data-number="{{AccountNumber}}" data-balance="{{TotalBalance}}" data-status="{{status}}">Edit</button>
+        {{/if}}
+        {{#if @root.can.delete}}
+        <button type="button" class="btn btn-ghost !min-h-[40px] !px-3 !text-red-700 hover:!bg-red-50" data-delete-account data-id="{{id}}" data-number="{{AccountNumber}}">Delete</button>
+        {{/if}}
+      </div>
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <div class="mt-3 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-10 text-center">
+    <p class="text-4xl" aria-hidden="true">🗂️</p>
+    {{#if filtered}}
+    <p class="mt-2 font-semibold text-slate-800">No accounts match your search.</p>
+    <p class="mt-1 text-sm text-slate-600">Check the spelling, or try fewer characters.</p>
+    <a href="/accounts" class="btn btn-primary mt-4">Show all accounts</a>
+    {{else}}
+    <p class="mt-2 font-semibold text-slate-800">There are no accounts yet.</p>
+    {{#if can.create}}
+    <p class="mt-1 text-sm text-slate-600">Let's open the first one.</p>
+    <button type="button" class="btn btn-success mt-4" data-open-dialog="createDialog">➕ New account</button>
+    {{/if}}
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{#if can.create}}
+  <!-- Create dialog -->
+  <dialog id="createDialog" aria-labelledby="createTitle">
+    <form method="post" action="/accounts" class="p-6" data-once>
+      <h2 id="createTitle" class="text-xl font-bold text-slate-900">➕ New account</h2>
+      <p class="mt-1 text-sm text-slate-600">Fill in the details below. Fields marked * are required.</p>
+      <div class="mt-5 space-y-4">
+        <div>
+          <label for="new_acc" class="label">Account number</label>
+          <input id="new_acc" name="account_number" class="input" placeholder="e.g. ACC-20001" maxlength="50" pattern="[A-Za-z0-9\-]{1,50}" autocomplete="off">
+          <p class="hint">Letters, numbers and dashes only. Leave empty and we'll make one for you.</p>
+        </div>
+        <div>
+          <label for="new_pin" class="label">PIN *</label>
+          <input id="new_pin" name="pin" type="password" class="input" placeholder="4 to 20 characters" minlength="4" maxlength="20" required autocomplete="new-password">
+          <p class="hint">Stored in scrambled form — nobody can read it back later.</p>
+        </div>
+        <div>
+          <label for="new_bal" class="label">Opening balance (₱)</label>
+          <input id="new_bal" name="balance" type="number" inputmode="decimal" min="0" step="0.01" value="0" class="input">
+        </div>
+        <div>
+          <label for="new_status" class="label">Status</label>
+          <select id="new_status" name="status" class="input">
+            <option value="active">✔ Active — working normally</option>
+            <option value="inactive">⏸ Inactive — not in use</option>
+            <option value="suspended">⛔ Suspended — temporarily blocked</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <button type="button" class="btn btn-ghost" data-close-dialog>Cancel</button>
+        <button type="submit" class="btn btn-success">Create account</button>
+      </div>
+    </form>
+  </dialog>
+  {{/if}}
+
+  {{#if can.edit}}
+  <!-- Edit dialog -->
+  <dialog id="editDialog" aria-labelledby="editTitle">
+    <form method="post" action="#" class="p-6" data-once data-edit-form>
+      <h2 id="editTitle" class="text-xl font-bold text-slate-900">✏️ Edit account</h2>
+      <p class="mt-1 text-sm text-slate-600">Account <strong data-edit-number></strong></p>
+      <div class="mt-5 space-y-4">
+        <div>
+          <label for="edit_bal" class="label">Balance (₱)</label>
+          <input id="edit_bal" name="balance" type="number" inputmode="decimal" min="0" step="0.01" class="input" required>
+          <p class="hint">Use this only to correct a mistake. For normal deposits and withdrawals, open the account and record a transaction — it keeps a proper history.</p>
+        </div>
+        <div>
+          <label for="edit_status" class="label">Status</label>
+          <select id="edit_status" name="status" class="input">
+            <option value="active">✔ Active — working normally</option>
+            <option value="inactive">⏸ Inactive — not in use</option>
+            <option value="suspended">⛔ Suspended — temporarily blocked</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <button type="button" class="btn btn-ghost" data-close-dialog>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+  {{/if}}
+
+  {{#if can.delete}}
+  <!-- Delete dialog -->
+  <dialog id="deleteDialog" aria-labelledby="deleteTitle">
+    <form method="post" action="#" class="p-6" data-once data-delete-form>
+      <h2 id="deleteTitle" class="text-xl font-bold text-slate-900">🗑 Delete this account?</h2>
+      <p class="mt-2 text-sm text-slate-700">You're about to delete account <strong data-delete-number></strong>.</p>
+      <p class="mt-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">It will disappear from the lists, but the record is kept in the database and this action is written to the activity log.</p>
+      <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <button type="button" class="btn btn-ghost" data-close-dialog>No, keep it</button>
+        <button type="submit" class="btn btn-danger">Yes, delete account</button>
+      </div>
+    </form>
+  </dialog>
+  {{/if}}
+
+{{> shellend}}
+{{> footer}}
